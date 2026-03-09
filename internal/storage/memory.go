@@ -2,7 +2,7 @@ package storage
 
 import (
     "fmt"
-	"time"
+    "time"
     "personal-calendar/internal/models"
 )
 
@@ -20,13 +20,13 @@ func NewMemoryStorage() *MemoryStorage {
     }
 }
 
-// Add - добавляет новое событие
-func (s *MemoryStorage) Add(title, description string, dateTime string) (*models.Event, error) {
-    // Здесь потом будет парсинг даты, пока упростим
+// Add - добавляет новое событие (упрощенная версия)
+func (s *MemoryStorage) Add(title, description string, date time.Time) (*models.Event, error) {
     event := &models.Event{
         ID:          s.nextID,
         Title:       title,
         Description: description,
+        Date:        date,
         CreatedAt:   time.Now(),
     }
     
@@ -34,6 +34,14 @@ func (s *MemoryStorage) Add(title, description string, dateTime string) (*models
     s.nextID++
     
     return event, nil
+}
+
+// AddEvent - добавляет готовое событие
+func (s *MemoryStorage) AddEvent(event *models.Event) {
+    s.events[event.ID] = event
+    if event.ID >= s.nextID {
+        s.nextID = event.ID + 1
+    }
 }
 
 // GetAll - возвращает все события
@@ -62,4 +70,9 @@ func (s *MemoryStorage) Delete(id int) error {
     }
     delete(s.events, id)
     return nil
+}
+
+// GetNextID - возвращает следующий доступный ID
+func (s *MemoryStorage) GetNextID() int {
+    return s.nextID
 }
