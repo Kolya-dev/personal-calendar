@@ -122,6 +122,7 @@ func addEvent(store *storage.MemoryStorage, reader *bufio.Reader) {
     if err != nil {
         fmt.Println("❌ Неправильный формат даты! Использую текущее время + 1 день")
         date = time.Now().AddDate(0, 0, 1)
+        fmt.Printf("✅ Установлена дата: %s\n", date.Format("02.01.2006 15:04"))
     }
     
     // Добавляем событие
