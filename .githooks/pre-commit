@@ -1,0 +1,15 @@
+#!/bin/sh
+
+echo "🔍 Running golangci-lint..."
+
+golangci-lint run
+
+if [ $? -ne 0 ]; then
+    echo ""
+    echo "❌ Linter errors found. Commit aborted."
+    echo "📌 Fix the errors above and try again."
+    exit 1
+fi
+
+echo "✅ Linter passed!"
+exit 0
