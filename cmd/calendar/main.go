@@ -10,6 +10,11 @@ import (
 	"time"
 )
 
+const (
+    exportFilePattern = "events_export_%s.txt"
+    dateTimeFormatForFilename = "20060102_150405"
+)
+
 func main() {
 	// Создаем хранилище
 	store := storage.NewMemoryStorage()
@@ -43,8 +48,8 @@ func main() {
 			editEvent(store, reader)
 		case "5":
 			filterEventsByDate(store, reader)
-        case "6":
-            exportEventsToFile(store)
+		case "6":
+			exportEventsToFile(store)
 		case "0":
 			fmt.Println("\nДо свидания!")
 			return
@@ -67,7 +72,7 @@ func printMenu() {
 	fmt.Println("3. Удалить событие")
 	fmt.Println("4. Редактировать событие")
 	fmt.Println("5. Показать события на дату")
-    fmt.Println("6. Экспорт событий в файл")
+	fmt.Println("6. Экспорт событий в файл")
 	fmt.Println("0. Выйти")
 }
 
@@ -317,49 +322,49 @@ func filterEventsByDate(store *storage.MemoryStorage, reader *bufio.Reader) {
 }
 
 func exportEventsToFile(store *storage.MemoryStorage) {
-    fmt.Println("\n💾 ЭКСПОРТ СОБЫТИЙ В ФАЙЛ:")
-    fmt.Println(strings.Repeat("-", 40))
-    
-    events := store.GetAll()
-    if len(events) == 0 {
-        fmt.Println("📭 Нет событий для экспорта")
-        fmt.Println("\nНажмите Enter для продолжения...")
-        bufio.NewReader(os.Stdin).ReadString('\n')
-        return
-    }
-    
-    // Формируем имя файла
-    now := time.Now()
-    filename := fmt.Sprintf("events_export_%s.txt", now.Format("20060102_150405"))
-    
-    // Создаём файл
-    file, err := os.Create(filename)
-    if err != nil {
-        fmt.Printf("❌ Ошибка создания файла: %v\n", err)
-        fmt.Println("\nНажмите Enter для продолжения...")
-        bufio.NewReader(os.Stdin).ReadString('\n')
-        return
-    }
-    defer file.Close()
-    
-    // Записываем заголовок
-    header := fmt.Sprintf("Экспорт событий календаря\nСоздано: %s\n%s\n\n", 
-        now.Format("02.01.2006 15:04:05"),
-        strings.Repeat("=", 50))
-    file.WriteString(header)
-    
-    // Записываем каждое событие
-    for _, event := range events {
-        line := fmt.Sprintf("[ID: %d] %s\n", event.ID, event.Title)
-        line += fmt.Sprintf("   Дата: %s\n", event.Date.Format("02.01.2006 15:04"))
-        line += fmt.Sprintf("   Описание: %s\n", event.Description)
-        line += fmt.Sprintf("   Создано: %s\n", event.CreatedAt.Format("02.01.2006 15:04"))
-        line += strings.Repeat("-", 50) + "\n"
-        file.WriteString(line)
-    }
-    
-    fmt.Printf("✅ Экспорт выполнен: %s\n", filename)
-    fmt.Printf("📁 Всего событий: %d\n", len(events))
-    fmt.Println("\nНажмите Enter для продолжения...")
-    bufio.NewReader(os.Stdin).ReadString('\n')
+	fmt.Println("\n💾 ЭКСПОРТ СОБЫТИЙ В ФАЙЛ:")
+	fmt.Println(strings.Repeat("-", 40))
+
+	events := store.GetAll()
+	if len(events) == 0 {
+		fmt.Println("📭 Нет событий для экспорта")
+		fmt.Println("\nНажмите Enter для продолжения...")
+		bufio.NewReader(os.Stdin).ReadString('\n')
+		return
+	}
+
+	// Формируем имя файла
+	now := time.Now()
+	filename := fmt.Sprintf(exportFilePattern, now.Format(dateTimeFormatForFilename))
+
+	// Создаём файл
+	file, err := os.Create(filename)
+	if err != nil {
+		fmt.Printf("❌ Ошибка создания файла: %v\n", err)
+		fmt.Println("\nНажмите Enter для продолжения...")
+		bufio.NewReader(os.Stdin).ReadString('\n')
+		return
+	}
+	defer file.Close()
+
+	// Записываем заголовок
+	header := fmt.Sprintf("Экспорт событий календаря\nСоздано: %s\n%s\n\n",
+		now.Format("02.01.2006 15:04:05"),
+		strings.Repeat("=", 50))
+	file.WriteString(header)
+
+	// Записываем каждое событие
+	for _, event := range events {
+		line := fmt.Sprintf("[ID: %d] %s\n", event.ID, event.Title)
+		line += fmt.Sprintf("   Дата: %s\n", event.Date.Format("02.01.2006 15:04"))
+		line += fmt.Sprintf("   Описание: %s\n", event.Description)
+		line += fmt.Sprintf("   Создано: %s\n", event.CreatedAt.Format("02.01.2006 15:04"))
+		line += strings.Repeat("-", 50) + "\n"
+		file.WriteString(line)
+	}
+
+	fmt.Printf("✅ Экспорт выполнен: %s\n", filename)
+	fmt.Printf("📁 Всего событий: %d\n", len(events))
+	fmt.Println("\nНажмите Enter для продолжения...")
+	bufio.NewReader(os.Stdin).ReadString('\n')
 }
