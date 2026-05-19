@@ -40,6 +40,8 @@ func main() {
         case "3":
             deleteEvent(store, reader)
         case "4":
+            editEvent(store, reader)
+        case "5":
             fmt.Println("\nДо свидания!")
             return
         default:
@@ -59,7 +61,8 @@ func printMenu() {
     fmt.Println("1. Показать все события")
     fmt.Println("2. Добавить событие")
     fmt.Println("3. Удалить событие")
-    fmt.Println("4. Выйти")
+    fmt.Println("4. Редактировать событие")
+    fmt.Println("5. Выйти")
 }
 
 func addTestEvents(store *storage.MemoryStorage) {
@@ -122,6 +125,7 @@ func addEvent(store *storage.MemoryStorage, reader *bufio.Reader) {
     if err != nil {
         fmt.Println("❌ Неправильный формат даты! Использую текущее время + 1 день")
         date = time.Now().AddDate(0, 0, 1)
+        fmt.Printf("✅ Установлена дата: %s\n", date.Format("02.01.2006 15:04"))
     }
     
     // Добавляем событие
@@ -181,6 +185,83 @@ func deleteEvent(store *storage.MemoryStorage, reader *bufio.Reader) {
         fmt.Println("✅ Событие успешно удалено!")
     }
     
+    fmt.Println("\nНажмите Enter для продолжения...")
+    reader.ReadString('\n')
+}
+
+func editEvent(store *storage.MemoryStorage, reader *bufio.Reader) {
+    fmt.Println("\n✏️  РЕДАКТИРОВАНИЕ СОБЫТИЯ:")
+    fmt.Println(strings.Repeat("-", 40))
+    
+    // Показываем существующие события
+    events := store.GetAll()
+    if len(events) == 0 {
+        fmt.Println("📭 Нет событий для редактирования")
+        fmt.Println("\nНажмите Enter для продолжения...")
+        reader.ReadString('\n')
+        return
+    }
+    
+    fmt.Println("Существующие события:")
+    for _, event := range events {
+        fmt.Printf("  [%d] %s (%s)\n", 
+            event.ID, 
+            event.Title, 
+            event.Date.Format("02.01.2006"))
+    }
+    
+    // Вводим ID для редактирования
+    fmt.Print("\nВведите ID события для редактирования: ")
+    idStr, _ := reader.ReadString('\n')
+    idStr = strings.TrimSpace(idStr)
+    
+    var id int
+    fmt.Sscanf(idStr, "%d", &id)
+    
+    // Находим событие
+    event, err := store.GetByID(id)
+    if err != nil {
+        fmt.Printf("❌ Ошибка: %s\n", err)
+        fmt.Println("\nНажмите Enter для продолжения...")
+        reader.ReadString('\n')
+        return
+    }
+    
+    fmt.Println("\n📝 ТЕКУЩИЕ ДАННЫЕ:")
+    fmt.Printf("   Название: %s\n", event.Title)
+    fmt.Printf("   Описание: %s\n", event.Description)
+    fmt.Printf("   Дата: %s\n", event.Date.Format("02.01.2006 15:04"))
+    
+    // Вводим новые данные
+    fmt.Println("\n(Если оставить пустым — значение не изменится)")
+    
+    fmt.Print("Новое название: ")
+    title, _ := reader.ReadString('\n')
+    title = strings.TrimSpace(title)
+    if title != "" {
+        event.Title = title
+    }
+    
+    fmt.Print("Новое описание: ")
+    description, _ := reader.ReadString('\n')
+    description = strings.TrimSpace(description)
+    if description != "" {
+        event.Description = description
+    }
+    
+    fmt.Print("Новая дата (ДД.ММ.ГГГГ ЧЧ:ММ): ")
+    dateStr, _ := reader.ReadString('\n')
+    dateStr = strings.TrimSpace(dateStr)
+    if dateStr != "" {
+        date, err := time.Parse("02.01.2006 15:04", dateStr)
+        if err != nil {
+            fmt.Println("❌ Неправильный формат даты! Дата не изменена")
+        } else {
+            event.Date = date
+        }
+    }
+    
+    fmt.Println("\n✅ Событие успешно обновлено!")
     fmt.Println("\nНажмите Enter для продолжения...")
     reader.ReadString('\n')
 }
