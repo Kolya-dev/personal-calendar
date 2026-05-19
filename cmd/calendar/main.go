@@ -10,6 +10,7 @@ import (
 	"time"
 )
 
+const version = "v1.0.0"
 const (
     exportFilePattern = "events_export_%s.txt"
     dateTimeFormatForFilename = "20060102_150405"
@@ -63,7 +64,7 @@ func main() {
 
 func printMenu() {
 	fmt.Println(strings.Repeat("-", 50))
-	fmt.Println("ПЕРСОНАЛЬНЫЙ КАЛЕНДАРЬ v0.1")
+	fmt.Println("ПЕРСОНАЛЬНЫЙ КАЛЕНДАРЬ", version)
 	fmt.Println(strings.Repeat("-", 50))
 
 	fmt.Println("\n📅 МЕНЮ:")
