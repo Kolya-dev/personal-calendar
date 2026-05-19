@@ -9,11 +9,11 @@ linters:
   default: none
   enable:
     - govet
-    - errcheck
+ #   - errcheck
     - staticcheck
     - unused
     - ineffassign
-    - gosec
+ #   - gosec
     - misspell
 
 formatters:

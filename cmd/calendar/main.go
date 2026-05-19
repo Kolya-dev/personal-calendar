@@ -28,7 +28,7 @@ func main() {
         printMenu()
         
         // Читаем команду
-        fmt.Print("\nВыберите команду (1-4): ")
+        fmt.Print("\nВыберите команду (1-6): ")
         command, _ := reader.ReadString('\n')
         command = strings.TrimSpace(command)
         
@@ -42,6 +42,8 @@ func main() {
         case "4":
             editEvent(store, reader)
         case "5":
+            showEventsByDate(store, reader)
+        case "6":
             fmt.Println("\nДо свидания!")
             return
         default:
@@ -62,7 +64,8 @@ func printMenu() {
     fmt.Println("2. Добавить событие")
     fmt.Println("3. Удалить событие")
     fmt.Println("4. Редактировать событие")
-    fmt.Println("5. Выйти")
+    fmt.Println("5. Показать события на дату")
+    fmt.Println("6. Выйти")
 }
 
 func addTestEvents(store *storage.MemoryStorage) {
@@ -262,6 +265,50 @@ func editEvent(store *storage.MemoryStorage, reader *bufio.Reader) {
     }
     
     fmt.Println("\n✅ Событие успешно обновлено!")
+    fmt.Println("\nНажмите Enter для продолжения...")
+    reader.ReadString('\n')
+}
+
+func showEventsByDate(store *storage.MemoryStorage, reader *bufio.Reader) {
+    fmt.Println("\n📅 ПОКАЗ СОБЫТИЙ НА ДАТУ:")
+    fmt.Println(strings.Repeat("-", 40))
+    
+    fmt.Print("Введите дату (ДД.ММ.ГГГГ): ")
+    dateStr, _ := reader.ReadString('\n')
+    dateStr = strings.TrimSpace(dateStr)
+    
+    // Парсим только дату (без времени)
+    targetDate, err := time.Parse("02.01.2006", dateStr)
+    if err != nil {
+        fmt.Println("❌ Неправильный формат даты! Используйте ДД.ММ.ГГГГ")
+        fmt.Println("\nНажмите Enter для продолжения...")
+        reader.ReadString('\n')
+        return
+    }
+    
+    events := store.GetAll()
+    found := false
+    
+    fmt.Println("\n📋 СОБЫТИЯ НА", targetDate.Format("02.01.2006"))
+    fmt.Println(strings.Repeat("-", 40))
+    
+    for _, event := range events {
+        // Сравниваем только год, месяц, день
+        if event.Date.Year() == targetDate.Year() &&
+           event.Date.Month() == targetDate.Month() &&
+           event.Date.Day() == targetDate.Day() {
+            fmt.Printf("[ID: %d] %s\n", event.ID, event.Title)
+            fmt.Printf("   📝 %s\n", event.Description)
+            fmt.Printf("   ⏰ %s\n", event.Date.Format("15:04"))
+            fmt.Println(strings.Repeat("-", 40))
+            found = true
+        }
+    }
+    
+    if !found {
+        fmt.Println("📭 Нет событий на указанную дату")
+    }
+    
     fmt.Println("\nНажмите Enter для продолжения...")
     reader.ReadString('\n')
 }
